@@ -1,0 +1,14 @@
+cookie:
+  expiry_days: 30
+  key: clave_secreta_cambia_esto_32chars
+  name: portafolio_session
+credentials:
+  usernames:
+    MarioEAJ:
+      email: malcaraz@maravillamx.com
+      name: Mario Alcaraz
+      password: $2b$12$mjz.YsH9Z38mZhAwxWkQQO6TWrypRv7gM.5y6xW0RqxwdAz0Qgg06
+    carlos_mendoza:
+      email: carlos@ejemplo.com
+      name: Carlos Mendoza
+      password: $2b$12$4Oc0CoUB0CN.vg.wS1eB/.a.EF8rl0DeY8M3gak19RSbnFAdt7Qru
