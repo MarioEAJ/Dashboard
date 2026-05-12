@@ -171,6 +171,7 @@ with st.sidebar:
     archivo_cliente = f"{username}.xlsx"
     if username.lower() == ASESOR_USERNAME.lower():
         st.markdown("## Panel de administración")
+        authenticator.logout("Cerrar sesión", "main")
         st.divider()
 
         # ── Solicitudes pendientes ──────────────────
