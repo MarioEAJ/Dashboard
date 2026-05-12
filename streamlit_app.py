@@ -169,22 +169,60 @@ with st.sidebar:
     ASESOR_USERNAME = "marioeaj"
     st.write(f"DEBUG username: '{username}' | ASESOR: '{ASESOR_USERNAME}'")
     archivo_cliente = f"{username}.xlsx"
-    if username == ASESOR_USERNAME:
-        st.info("Bienvenido al portal de administración.")
-        st.markdown("Accede al **panel de administración** desde el menú de la izquierda.")
+    if username.lower() == ASESOR_USERNAME.lower():
+        st.markdown("## Panel de administración")
+        st.divider()
+
+        # ── Solicitudes pendientes ──────────────────
+        st.markdown("### Solicitudes pendientes")
+        pendientes = registro.obtener_pendientes()
+
+        if not pendientes:
+            st.success("No hay solicitudes pendientes.")
+        else:
+            st.info(f"{len(pendientes)} solicitud(es) esperando aprobación.")
+            for uname, datos in pendientes.items():
+                with st.container(border=True):
+                    col_info, col_acciones = st.columns([3, 1])
+                    with col_info:
+                        st.markdown(f"**{datos['name']}**")
+                        st.caption(f"Usuario: `{uname}` · Email: {datos['email']} · Solicitado: {datos['fecha']}")
+                    with col_acciones:
+                        if st.button("Aprobar", key=f"ap_{uname}", type="primary", use_container_width=True):
+                            if registro.aprobar_usuario(uname, MARCA["nombre_firma"]):
+                                st.success(f"{datos['name']} aprobado.")
+                                st.info(f"Recuerda crear **{uname}.xlsx**")
+                                st.rerun()
+                        if st.button("Rechazar", key=f"re_{uname}", use_container_width=True):
+                            if registro.rechazar_usuario(uname, MARCA["nombre_firma"]):
+                                st.warning(f"Solicitud de {datos['name']} rechazada.")
+                                st.rerun()
+
+        st.divider()
+
+        # ── Usuarios activos ────────────────────────
+        st.markdown("### Usuarios activos")
+        with open(CONFIG_PATH) as f:
+            config_actual = yaml.safe_load(f)
+        activos = config_actual.get("credentials", {}).get("usernames", {})
+        clientes = {u: d for u, d in activos.items() if u.lower() != ASESOR_USERNAME.lower()}
+
+        if not clientes:
+            st.info("No hay clientes activos todavía.")
+        else:
+            for uname, datos in clientes.items():
+                with st.container(border=True):
+                    col_u, col_archivo = st.columns([3, 2])
+                    with col_u:
+                        st.markdown(f"**{datos['name']}**")
+                        st.caption(f"`{uname}` · {datos.get('email','—')}")
+                    with col_archivo:
+                        if os.path.exists(f"{uname}.xlsx"):
+                            st.success(f"{uname}.xlsx ✓")
+                        else:
+                            st.error(f"{uname}.xlsx — falta el Excel")
+
         st.stop()
-
-    if not os.path.exists(archivo_cliente):
-     st.error(f"No se encontró {archivo_cliente}")
-     st.info("El asesor debe subir el Excel del portafolio.")
-     authenticator.logout("Cerrar sesión", "sidebar")
-     st.stop()
-
-    st.caption(f"Sesión: {nombre}")
-    st.caption(f"Actualizado: {datetime.now().strftime('%d/%m/%Y')}")
-    st.markdown("---")
-    authenticator.logout("Cerrar sesión", "sidebar")
-
 # ─────────────────────────────────────────────
 #  CARGA DE DATOS
 # ─────────────────────────────────────────────
